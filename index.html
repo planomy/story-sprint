@@ -24,19 +24,29 @@
             overflow: hidden; 
         }
 
-        .exemplar-part {
+        .sprint-row {
+            display: flex;
+            gap: 2rem;
+            padding: 2rem;
+            border-bottom: 1px solid #1e293b;
             transition: all 0.3s ease;
-            border-left: 4px solid transparent;
-            padding-left: 1rem;
-            margin-bottom: 2rem;
-            opacity: 0.3;
+            opacity: 0.4;
         }
 
-        .exemplar-part.active {
+        .sprint-row.active {
             opacity: 1;
-            border-left-color: var(--accent);
-            background: rgba(59, 130, 246, 0.05);
-            transform: translateX(5px);
+            background: rgba(59, 130, 246, 0.03);
+        }
+
+        .exemplar-zone {
+            width: 45%;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #94a3b8;
+        }
+
+        .input-zone {
+            flex: 1;
         }
 
         .feature-tag {
@@ -47,6 +57,7 @@
             border-radius: 3px;
             margin-right: 4px;
             display: inline-block;
+            margin-bottom: 0.5rem;
         }
 
         textarea {
@@ -56,12 +67,17 @@
             resize: none;
             scrollbar-width: thin;
             transition: all 0.2s;
+            width: 100%;
+            padding: 1.2rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
         }
 
         textarea:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
             background-color: #161e31;
         }
 
@@ -69,11 +85,10 @@
         .hl-first-word { color: #60a5fa !important; font-weight: bold; border-bottom: 2px solid #60a5fa; }
         .hl-passive { color: #f87171 !important; text-decoration: underline wavy #f87171; }
         .hl-basic { color: #4ade80 !important; background: rgba(74, 222, 128, 0.1); }
-        .hl-adjective { color: #c084fc !important; border-bottom: 1px solid #c084fc; }
+        .hl-adjective { color: #c084fc !important; border-bottom: 2px solid #c084fc; font-weight: 600; }
         .hl-adverb { color: #f472b6 !important; font-style: italic; border-bottom: 1px dashed #f472b6; }
         .hl-filter { color: #facc15 !important; background: rgba(250, 204, 21, 0.1); font-weight: bold; }
 
-        /* Exemplar Visual Markers & Tooltips */
         .ex-verb { color: #facc15; font-weight: bold; cursor: help; position: relative; }
         .ex-lit { color: #fb923c; font-weight: 600; text-decoration: underline; cursor: help; position: relative; }
 
@@ -85,24 +100,25 @@
             transform: translateX(-50%);
             background: #3b82f6;
             color: #fff;
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: bold;
+            font-size: 0.75rem;
+            font-weight: 800;
             white-space: nowrap;
-            z-index: 100;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
         }
 
         .analysis-overlay {
             font-family: 'Inter', sans-serif;
-            line-height: 1.8;
+            line-height: 2;
             white-space: pre-wrap;
             word-wrap: break-word;
             outline: none;
+            font-size: 1.1rem;
         }
 
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar { width: 8px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
 
@@ -125,11 +141,9 @@
             border-radius: 8px;
             font-weight: bold;
             display: none;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 2000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-
-        .stat-badge { transition: all 0.3s ease; }
 
         .mode-toggle {
             background: #1e293b;
@@ -140,17 +154,23 @@
         }
 
         .mode-btn {
-            padding: 4px 12px;
+            padding: 4px 16px;
             border-radius: 6px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 800;
             text-transform: uppercase;
             transition: all 0.2s;
+            color: #64748b;
         }
 
         .mode-btn.active {
             background: #3b82f6;
             color: white;
+        }
+
+        .title-box {
+            background: linear-gradient(to right, #1e293b, #0f172a);
+            border-left: 4px solid #3b82f6;
         }
     </style>
 </head>
@@ -178,114 +198,102 @@
 
         <div class="flex items-center gap-6">
             <div class="text-center">
-                <span class="text-[9px] text-slate-500 uppercase font-black">Timer</span>
+                <span class="text-[9px] text-slate-500 uppercase font-black tracking-widest">Sprint Timer</span>
                 <div id="timerDisplay" class="text-xl font-mono font-bold text-blue-400 leading-none">35:00</div>
             </div>
 
             <div class="text-center">
-                <span class="text-[9px] text-slate-500 uppercase font-black">Target</span>
-                <div id="wordCountDisplay" class="text-xl font-mono font-bold leading-none">0 / <span id="targetDisplay">400</span></div>
+                <span class="text-[9px] text-slate-500 uppercase font-black tracking-widest">Story Target</span>
+                <div id="wordCountDisplay" class="text-xl font-mono font-bold leading-none">0 / <span id="targetDisplay">430</span></div>
             </div>
 
             <div class="flex gap-2">
                 <button onclick="toggleSettings()" class="p-2 hover:bg-slate-800 rounded text-slate-400 transition-colors"><i class="fas fa-cog"></i></button>
-                <button id="startBtn" onclick="startSprint()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded font-bold text-sm transition-all shadow-lg shadow-blue-900/20">START SPRINT</button>
-                <button id="analysisBtn" onclick="toggleAnalysis()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded font-bold text-sm transition-all">WORD ANALYSIS</button>
+                <button id="startBtn" onclick="startSprint()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-bold text-sm transition-all shadow-lg shadow-blue-900/20">START SPRINT</button>
+                <button id="analysisBtn" onclick="toggleAnalysis()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded font-bold text-sm transition-all">WORD ANALYSIS</button>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 flex overflow-hidden">
-        
-        <!-- Left Column: Annotated Exemplar -->
-        <div id="exemplarColumn" class="w-1/3 border-r border-slate-800 bg-slate-900/50 overflow-y-auto p-6 custom-scroll">
-            <!-- Dynamic Content Injected Here -->
+    <main class="flex-1 overflow-hidden relative">
+        <div id="mainContent" class="h-full overflow-y-auto custom-scroll">
+            <div class="p-6 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between shrink-0">
+                <div class="title-box p-4 rounded flex-1 flex items-center justify-between border border-slate-700 shadow-lg mr-6">
+                    <div class="flex-1">
+                        <span class="text-[9px] text-blue-400 uppercase font-black block mb-1">Writing Prompt</span>
+                        <div id="generatedTitleDisplay" class="text-lg font-bold text-white tracking-tight leading-none italic">Click generate for a topic...</div>
+                    </div>
+                    <button onclick="generateTitle()" class="bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-lg transition-all flex items-center gap-2 group shadow-xl ml-4">
+                        <i class="fas fa-dice text-sm group-hover:rotate-180 transition-transform duration-500"></i>
+                        <span class="text-xs font-bold uppercase">Generate</span>
+                    </button>
+                </div>
+                <div class="bg-blue-900/20 border border-blue-500/20 p-4 rounded max-w-sm">
+                    <h3 id="strategyLabel" class="text-blue-400 text-[10px] font-black uppercase mb-1">Senior Strategy: 1-1-1-1</h3>
+                    <p id="strategyDesc" class="text-[11px] text-slate-400">1 Character. 1 Place. 1 Problem. Start 1 minute before the disaster.</p>
+                </div>
+            </div>
+            
+            <!-- Writing Zones Container -->
+            <div id="sprintZones"></div>
+            
+            <div class="h-20"></div> <!-- Buffer -->
         </div>
 
-        <!-- Right Column -->
-        <div class="flex-1 flex flex-col p-6 overflow-y-auto custom-scroll bg-slate-950">
-            
-            <!-- Writer Interface -->
-            <div id="writingArea">
-                <div class="bg-blue-900/20 border border-blue-500/20 p-4 rounded mb-6 flex items-center justify-between">
-                    <div>
-                        <h3 id="strategyLabel" class="text-blue-400 text-[10px] font-black uppercase mb-1">Senior Strategy: 1-1-1-1</h3>
-                        <p id="strategyDesc" class="text-[11px] text-slate-400">1 Character. 1 Place. 1 Problem. Start 1 minute before the disaster.</p>
+        <!-- Analysis Overlay -->
+        <div id="analysisArea" class="hidden absolute inset-0 bg-slate-950 z-[100] flex flex-col p-6 overflow-hidden">
+            <div class="analysis-dashboard shrink-0">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-emerald-400 uppercase tracking-tighter">Live Analysis & Polish</h2>
+                    <div class="flex gap-2">
+                        <button onclick="copyToClipboard()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded text-xs font-bold flex items-center gap-2 transition-all"><i class="fas fa-copy"></i> COPY STORY</button>
+                        <button onclick="runAnalysis(true)" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded text-xs font-bold flex items-center gap-2 transition-all"><i class="fas fa-sync"></i> REFRESH SCAN</button>
+                        <button onclick="emailMrC()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded text-xs font-bold flex items-center gap-2 transition-all"><i class="fas fa-envelope"></i> EMAIL MR C</button>
+                        <button onclick="toggleAnalysis()" class="bg-slate-800 text-slate-400 hover:text-white px-4 py-2 rounded text-xs font-bold transition-all">BACK TO EDIT</button>
                     </div>
-                    <div class="text-right text-[9px] text-slate-500 uppercase font-bold">Work is not saved</div>
                 </div>
 
-                <div class="mb-6">
-                    <label id="hookLabel" class="block text-[10px] font-black text-emerald-500 mb-1 uppercase tracking-wider">The One-Line Hook (Immediate Impact)</label>
-                    <textarea id="pHook" onfocus="setActive(0)" oninput="updateCounts()" class="w-full h-16 p-4 rounded border-emerald-500/30 font-bold italic" placeholder="Start with action, dialogue, or a feeling..."></textarea>
+                <div class="grid grid-cols-6 gap-2 mb-4">
+                    <div id="stat-box-starts" class="p-2 bg-blue-900/10 border border-blue-500/20 rounded text-center">
+                        <div id="label-starts" class="text-[9px] text-blue-400 font-black uppercase mb-1">Weak Starts</div>
+                        <div id="startStat" class="text-xs text-blue-200">0%</div>
+                    </div>
+                    <div id="stat-box-filter" class="p-2 bg-yellow-900/10 border border-yellow-500/20 rounded text-center">
+                        <div id="label-filter" class="text-[9px] text-yellow-400 font-black uppercase mb-1">Filter Words</div>
+                        <div id="filterStat" class="text-xs text-yellow-200">0</div>
+                    </div>
+                    <div id="stat-box-passive" class="p-2 bg-red-900/10 border border-red-500/20 rounded text-center">
+                        <div id="label-passive" class="text-[9px] text-red-400 font-black uppercase mb-1">Passive Voice</div>
+                        <div id="passiveStat" class="text-xs text-red-200">0</div>
+                    </div>
+                    <div id="stat-box-basic" class="p-2 bg-emerald-900/10 border border-emerald-500/20 rounded text-center">
+                        <div id="label-basic" class="text-[9px] text-emerald-400 font-black uppercase mb-1">Basic Words</div>
+                        <div id="basicStat" class="text-xs text-emerald-200">0</div>
+                    </div>
+                    <div id="stat-box-adj" class="p-2 bg-purple-900/10 border border-purple-500/20 rounded text-center">
+                        <div id="label-adj" class="text-[9px] text-purple-400 font-black uppercase mb-1">Adjectives</div>
+                        <div id="adjStat" class="text-xs text-purple-200">0%</div>
+                    </div>
+                    <div id="stat-box-adv" class="p-2 bg-pink-900/10 border border-pink-500/20 rounded text-center">
+                        <div id="label-adv" class="text-[9px] text-pink-400 font-black uppercase mb-1">Adverbs</div>
+                        <div id="advStat" class="text-xs text-pink-200">0</div>
+                    </div>
                 </div>
 
-                <div class="mb-6"><label id="p1Label" class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-wider">P1: The Start (Scene + History)</label><textarea id="p1" onfocus="setActive(1)" oninput="updateCounts()" class="w-full h-32 p-4 rounded"></textarea></div>
-                <div class="mb-6"><label id="p2Label" class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-wider">P2: Tension (Memory + The Problem)</label><textarea id="p2" onfocus="setActive(2)" oninput="updateCounts()" class="w-full h-40 p-4 rounded"></textarea></div>
-                <div class="mb-6"><label id="p3Label" class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-wider">P3: The Peak (The Biggest Moment)</label><textarea id="p3" onfocus="setActive(3)" oninput="updateCounts()" class="w-full h-40 p-4 rounded"></textarea></div>
-                <div class="mb-10"><label id="p4Label" class="block text-[10px] font-black text-slate-500 mb-1 uppercase tracking-wider">P4: The Fix (The Resolution)</label><textarea id="p4" onfocus="setActive(4)" oninput="updateCounts()" class="w-full h-40 p-4 rounded"></textarea></div>
+                <div id="tipsGrid" class="grid grid-cols-6 gap-2"></div>
             </div>
 
-            <!-- Analysis Dashboard -->
-            <div id="analysisArea" class="hidden h-full flex flex-col overflow-hidden">
-                <div class="analysis-dashboard shrink-0">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-bold text-emerald-400 uppercase tracking-tighter">Live Analysis & Polish</h2>
-                        <div class="flex gap-2">
-                            <button onclick="copyToClipboard()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded text-xs font-bold flex items-center gap-2"><i class="fas fa-copy"></i> COPY</button>
-                            <button onclick="runAnalysis(true)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded text-xs font-bold flex items-center gap-2"><i class="fas fa-sync"></i> REFRESH</button>
-                            <button onclick="emailMrC()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded text-xs font-bold flex items-center gap-2"><i class="fas fa-envelope"></i> EMAIL MR C</button>
-                            <button onclick="toggleAnalysis()" class="bg-slate-800 text-slate-400 hover:text-white px-4 py-2 rounded text-xs font-bold">BACK</button>
-                        </div>
-                    </div>
-
-                    <!-- Stats Boxes Grid -->
-                    <div class="grid grid-cols-6 gap-2 mb-4">
-                        <div id="stat-starts" class="p-2 bg-blue-900/10 border border-blue-500/20 rounded text-center stat-badge">
-                            <div id="label-starts" class="text-[9px] text-blue-400 font-black uppercase mb-1">Weak Starts</div>
-                            <div id="startStat" class="text-xs text-blue-200">0%</div>
-                        </div>
-                        <div id="stat-filter" class="p-2 bg-yellow-900/10 border border-yellow-500/20 rounded text-center stat-badge">
-                            <div id="label-filter" class="text-[9px] text-yellow-400 font-black uppercase mb-1">Filter Words</div>
-                            <div id="filterStat" class="text-xs text-yellow-200">0</div>
-                        </div>
-                        <div id="stat-passive" class="p-2 bg-red-900/10 border border-red-500/20 rounded text-center stat-badge">
-                            <div id="label-passive" class="text-[9px] text-red-400 font-black uppercase mb-1">Passive Voice</div>
-                            <div id="passiveStat" class="text-xs text-red-200">0</div>
-                        </div>
-                        <div id="stat-basic" class="p-2 bg-emerald-900/10 border border-emerald-500/20 rounded text-center stat-badge">
-                            <div id="label-basic" class="text-[9px] text-emerald-400 font-black uppercase mb-1">Basic Words</div>
-                            <div id="basicStat" class="text-xs text-emerald-200">0</div>
-                        </div>
-                        <div id="stat-adj" class="p-2 bg-purple-900/10 border border-purple-500/20 rounded text-center stat-badge">
-                            <div id="label-adj" class="text-[9px] text-purple-400 font-black uppercase mb-1">Adjectives</div>
-                            <div id="adjStat" class="text-xs text-purple-200">0%</div>
-                        </div>
-                        <div id="stat-adv" class="p-2 bg-pink-900/10 border border-pink-500/20 rounded text-center stat-badge">
-                            <div id="label-adv" class="text-[9px] text-pink-400 font-black uppercase mb-1">Adverbs</div>
-                            <div id="advStat" class="text-xs text-pink-200">0</div>
-                        </div>
-                    </div>
-
-                    <!-- Analysis Tips Grid -->
-                    <div id="tipsGrid" class="grid grid-cols-6 gap-2">
-                        <!-- Content Injected Dynamically -->
-                    </div>
-                </div>
-
-                <div class="flex-1 overflow-y-auto custom-scroll pt-4">
-                    <div id="fullAnalysisText" contenteditable="true" class="analysis-overlay p-8 bg-slate-900/50 rounded border border-slate-800 text-lg shadow-inner min-h-full"></div>
-                </div>
+            <div class="flex-1 overflow-y-auto custom-scroll pt-4">
+                <div id="fullAnalysisText" contenteditable="true" class="analysis-overlay p-10 bg-slate-900/50 rounded border border-slate-800 text-lg shadow-inner min-h-full"></div>
             </div>
-
         </div>
     </main>
 
     <!-- Settings Modal -->
-    <div id="settingsModal" class="fixed inset-0 bg-black/80 flex items-center justify-center hidden z-[100]">
+    <div id="settingsModal" class="fixed inset-0 bg-black/80 flex items-center justify-center hidden z-[1000]">
         <div class="bg-slate-900 p-8 rounded border border-slate-700 w-80 shadow-2xl">
-            <h3 class="text-lg font-bold mb-6">Configuration</h3>
-            <div class="mb-4 text-left"><label class="text-[10px] text-slate-500 font-black uppercase mb-1 block">Word Target</label><input type="number" id="targetInput" value="400" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white"></div>
+            <h3 class="text-lg font-bold mb-6">Sprint Configuration</h3>
+            <div class="mb-4 text-left"><label class="text-[10px] text-slate-500 font-black uppercase mb-1 block">Word Target</label><input type="number" id="targetInput" value="430" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white"></div>
             <div class="mb-8 text-left"><label class="text-[10px] text-slate-500 font-black uppercase mb-1 block">Minutes</label><input type="number" id="timeInput" value="35" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white"></div>
             <button onclick="saveSettings()" class="w-full bg-blue-600 p-3 rounded font-bold text-sm">SAVE</button>
         </div>
@@ -295,112 +303,46 @@
         let currentMode = 'senior';
         let timeLeft = 35 * 60;
         let timerInterval;
-        let targetWords = 400;
+        let targetWords = 430;
         let isSprinting = false;
 
+        const storyTitles = ["The Truth", "The Lie", "Freedom", "Frightened", "The Hidden Key", "The Choice", "Betrayal", "Discovery", "Escape", "Lost", "Final Chance", "The Price", "Silence", "The Trap", "Courage", "The Path", "Unexpected", "Shadow", "Attic", "Storm", "Regret", "Beginning", "Starting Over", "Last Stand", "Forbidden", "The Gate", "The Key", "The Promise", "Memory", "The Gift"];
+
         const basicWords = new Set(['good', 'bad', 'ran', 'saw', 'said', 'went', 'looked', 'happy', 'sad', 'big', 'small', 'very', 'get', 'got', 'nice', 'think', 'stuff', 'thing', 'really', 'fast', 'slow', 'cold', 'hot', 'walked', 'run', 'see', 'look', 'fine', 'okay', 'great', 'tell', 'told', 'lot', 'lots', 'scared', 'angry', 'little', 'maybe', 'basically', 'kind', 'awesome', 'amazing']);
-        const filterWords = new Set(['saw', 'heard', 'realised', 'decided', 'tried', 'felt', 'seemed', 'wanted', 'hoped']);
+        const filterWords = new Set(['saw', 'heard', 'realised', 'decided', 'tried', 'felt', 'seemed', 'wanted', 'hoped', 'noticed', 'realized', 'smelled', 'tasted', 'wondered', 'knew', 'thought']);
         const weakStarts = new Set(['the', 'it', 'a', 'an', 'he', 'she', 'his', 'her', 'this', 'these', 'those', 'they', 'then', 'there']);
         const passiveVerbs = new Set(['was', 'were', 'is', 'are', 'has', 'had', 'have', 'be', 'been', 'being']);
+        
+        const adjectives = new Set(['bright', 'dark', 'cold', 'hot', 'heavy', 'light', 'rough', 'smooth', 'sharp', 'dull', 'ancient', 'modern', 'silver', 'golden', 'blue', 'red', 'green', 'black', 'white', 'rusted', 'icy', 'wounded', 'metallic', 'damp', 'rotting', 'shattered', 'stained', 'clenched', 'hollow', 'absolute', 'silent', 'shaky', 'anxious', 'secretive', 'quiet', 'loud', 'soft', 'hard', 'broken', 'wild', 'scary', 'faded', 'brave', 'cautious', 'sticky', 'shrill', 'packed', 'visceral', 'thick', 'mocking', 'unfolded', 'terrifying', 'polished', 'physical', 'dry', 'steady', 'curious', 'familiar', 'indifferent', 'internal', 'ghostly', 'executive', 'expensive', 'mahogany', 'plush', 'windowless', 'invisible', 'fluorescent', 'frantic', 'termination', 'jagged', 'fury', 'vanity', 'tattered', 'wooden', 'cardboard', 'mothballs', 'brass', 'forbidden', 'creaky', 'sapphire', 'intimidating', 'jagged', 'slate', 'fountain', 'conspicuous', 'immense', 'shimmering', 'vibrant', 'brittle', 'elegant', 'furious', 'ghastly', 'ominous', 'radiant', 'somber', 'vicious', 'weary', 'moral', 'foolish', 'exposed', 'huge', 'young', 'hungry', 'fierce', 'cruel', 'hollower', 'immobile', 'wrathful', 'closest', 'wide', 'bitter', 'nauseating', 'jagged', 'unforgiving', 'indifferent', 'reinforced', 'gilded', 'tattered', 'triumphant', 'shaking', 'jagged', 'silent', 'ghostly', 'executive', 'panoramic', 'recessed', 'muffled', 'bitter', 'vicious', 'frail', 'stagnant', 'murky', 'violent', 'shrill', 'ominous', 'jagged', 'vivid', 'faint', 'acrid', 'pungent', 'damp', 'chilled', 'frozen', 'stiff', 'aching', 'exhausted', 'furious', 'feeble', 'rugged', 'vast', 'infinite', 'desolate', 'lush', 'majestic', 'hostile', 'barren']);
 
         const modes = {
             senior: {
-                target: 400,
+                target: 430,
                 icon: 'fa-bolt-lightning',
+                strategy: 'Senior Strategy: 1-1-1-1',
                 labels: { starts: 'Weak Starts', filter: 'Filter Words', passive: 'Passive Voice', adj: 'Adjectives' },
-                tips: [
-                    'Repetitive starts are boring. Use <strong>Prepositions</strong>.',
-                    'Just describe the action directly.',
-                    'Make the character do the action.',
-                    'Swap for <strong>Power Words</strong>.',
-                    'Sensory details paint a picture.',
-                    'Use a strong verb instead.'
-                ],
-                exemplar: `
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Senior Exemplar</h2>
-                        <span class="text-[10px] text-blue-400 bg-blue-900/30 px-2 py-1 rounded">435 Words</span>
-                    </div>
-                    <div id="exemplar-0" class="exemplar-part text-[0.8rem]">
-                        <span class="feature-tag bg-emerald-900 text-emerald-200">The Power Hook</span>
-                        <p class="mt-3 leading-relaxed text-emerald-300 font-bold italic">
-                            <span class="ex-verb" data-tooltip="Action Hook">Gripping</span> the mahogany desk, Arthur realised his triumph was merely <span class="ex-lit" data-tooltip="Metaphor">a gilded cage</span>.
-                        </p>
-                    </div>
-                    <div id="exemplar-1" class="exemplar-part text-[0.8rem]">
-                        <span class="feature-tag bg-blue-900 text-blue-200">P1: The Start</span>
-                        <p class="mt-3 leading-relaxed text-slate-300">
-                            <span class="ex-verb" data-tooltip="Double Hand Start">With the silver nameplate clutched proudly in one hand and the heavy office keys given to him by the receptionist in the other</span>, Arthur <span class="ex-verb" data-tooltip="Active Verb">stood</span> before the mahogany desk that now anchored his future. High above the crawling city traffic, the executive suite smelled of expensive sandalwood and fresh ink. For twelve long years, he had operated from a windowless cubicle on the third floor, fueled by a single goal: to one day inhabit this very office. He remembered the grey carpet and the flickering lights of the basement, a life he had desperately fought to escape. Success appeared to be <span class="ex-lit" data-tooltip="Metaphor">a quiet room with a heavy door</span>, far removed from the broken dreams of the workers below. This building stood as <span class="ex-lit" data-tooltip="Imagery">a glass monument</span> to his ambition.
-                        </p>
-                    </div>
-                    <div id="exemplar-2" class="exemplar-part text-[0.8rem]">
-                        <span class="feature-tag bg-blue-900 text-blue-200">P2: Tension</span>
-                        <p class="mt-3 leading-relaxed text-slate-300">
-                            <span class="ex-verb" data-tooltip="Injected Verb Start">Clutching the sapphire-blue folder, feeling the icy dread seep through his veins</span>, Arthur <span class="ex-verb">unveiled</span> the reality of the promotion lurking in the tiny print. The contract was thick <span class="ex-lit" data-tooltip="Polysyndeton">and intimidating and littered with names</span> of mentors. Every line demanded a betrayal, requiring his signature to terminate the people who had shared their sandwiches with him during double-shifts three winters ago. He remembered David covering for his mistakes when Arthur was just a junior. Now, <span class="ex-lit" data-tooltip="Simile">the ink on the page looked like a line of ants marching toward a cliff</span>.
-                        </p>
-                    </div>
-                    <div id="exemplar-3" class="exemplar-part text-[0.8rem]">
-                        <span class="feature-tag bg-blue-900 text-blue-200">P3: The Peak</span>
-                        <p class="mt-3 leading-relaxed text-slate-300">
-                            <span class="ex-verb" data-tooltip="TNT Start">Arthur froze. He watched. He waited. He swallowed.</span> Groaning on its hinges, the heavy mahogany door allowed the CEO to enter. The man sliding the gold fountain pen across the desk had been Arthur’s idol since his first day as an intern. "Sign them, Arthur," the man whispered, his eyes as grey and indifferent as a tombstone. <span class="ex-lit" data-tooltip="Asyndeton">Sharp. Heavy. Final.</span> Arthur stared at the top name—David—the very person who had taught him how to survive this industry without losing his soul.
-                        </p>
-                    </div>
-                    <div id="exemplar-4" class="exemplar-part text-[0.8rem]">
-                        <span class="feature-tag bg-blue-900 text-blue-200">P4: Resolution</span>
-                        <p class="mt-3 leading-relaxed text-slate-300">
-                            <span class="ex-verb" data-tooltip="Double Issue Start">Arthur, battling the crushing weight of his own ambition, pushed</span> the gold pen away with a steady hand. He looked the CEO in the eye, <span class="ex-lit" data-tooltip="Personification">his conscience finally speaking over the roar of his ego</span>. "The view isn't worth the price," he stated, his voice echoing against the glass. The CEO's expression twisted into fury. Stepping away from the mahogany monument to his vanity, Arthur walked toward the exit. The burden fell away, replaced by a beautiful sense of freedom he hadn't felt in twelve years.
-                        </p>
-                    </div>
-                `
+                tips: ['Limit Nouns/Pronouns. Check <strong>every paragraph</strong>.', 'Just describe the action directly.', 'Make the character do the action.', 'Swap for <strong>Power Words</strong>.', 'Sensory details paint a picture.', 'Use a strong verb instead.'],
+                exemplars: [
+                    { tag: 'The Power Hook', id: 'pHook', label: 'Immediate Impact Hook', placeholder: 'Start with action, dialogue, or a feeling...', content: `<p class="font-bold italic text-emerald-300"><span class="ex-verb" data-tooltip="Action Hook">Gripping</span> the mahogany desk, Arthur realised his triumph was merely <span class="ex-lit" data-tooltip="Metaphor">a gilded cage</span>.</p>` },
+                    { tag: 'P1: The Start', id: 'p1', label: 'Scene Setting + History (Double Hand Start)', content: `<p><span class="ex-verb" data-tooltip="Double Hand Start">With the silver nameplate clutched proudly in one hand and the heavy office keys given to him by the receptionist in the other</span>, Arthur <span class="ex-verb" data-tooltip="Active Verb">stood</span> before the mahogany desk that now anchored his future. High above the crawling city traffic, the executive suite smelled of expensive sandalwood and fresh ink. For twelve long years, he had operated from a windowless cubicle on the third floor, fueled by a single goal: to one day inhabit this very office. He remembered the damp smell of the basement and the grey carpet that always felt slightly moist underfoot—a life he had desperately fought to escape. Success appeared to be <span class="ex-lit" data-tooltip="Metaphor">a quiet room with a heavy door</span>, far removed from the scuffed shoes and broken dreams of the workers below. This building stood as <span class="ex-lit" data-tooltip="Imagery">a glass monument</span> to his ambition, yet the air within felt strangely thin.</p>` },
+                    { tag: 'P2: Tension', id: 'p2', label: 'Memories + The Problem (Injected Verb Start)', content: `<p><span class="ex-verb" data-tooltip="Injected Verb Start">Clutching the sapphire-blue folder, feeling the icy dread seep through his veins</span>, Arthur <span class="ex-verb">unveiled</span> the reality of the promotion lurking in the tiny print. The contract was thick <span class="ex-lit" data-tooltip="Polysyndeton">and intimidating and littered with names</span> of people Arthur had considered family for over a decade. Within the fine print, <span class="ex-lit" data-tooltip="Metaphor">a sea of corporate jargon</span> washed over him. Every line of text demanded a betrayal, requiring his signature to terminate the very people who had shared their sandwiches with him during double-shifts three winters ago. He remembered David covering for his mistakes when Arthur was just a junior, and Clara bringing him coffee during the bleakest nights of the audit. Now, <span class="ex-lit" data-tooltip="Simile">the ink on the page looked like a line of ants marching toward a cliff</span>.</p>` },
+                    { tag: 'P3: The Peak', id: 'p3', label: 'The Complication (TNT Start)', content: `<p><span class="ex-verb" data-tooltip="TNT Start">Arthur froze. He watched. He swallowed.</span> Groaning on its hinges, the heavy mahogany door allowed the CEO to enter with an artificial smile. The man sliding the gold fountain pen across the desk had been Arthur’s idol since his first day as an intern. "Sign them, Arthur," the man whispered, his eyes as grey and indifferent as a tombstone. <span class="ex-lit" data-tooltip="Asyndeton">Sharp. Heavy. Final.</span> Arthur stared at the top name—David—the very person who had taught him how to survive this industry without losing his soul. <span class="ex-lit" data-tooltip="Synecdoche">A single hand</span>, the one that once guided him, was now demanding he destroy his mentor’s career. The pressure in the room felt <span class="ex-lit" data-tooltip="Simile">like a physical weight</span> pressing against his lungs.</p>` },
+                    { tag: 'P4: The Fix', id: 'p4', label: 'The Resolution (Double Issue Start)', content: `<p><span class="ex-verb" data-tooltip="Double Issue Start">Arthur, battling the crushing weight of his own ambition, pushed</span> the gold pen away with a steady, determined hand. He looked the CEO in the eye, <span class="ex-lit" data-tooltip="Personification">his conscience finally speaking over the roar of his ego</span>. "The view isn't worth the price," he stated, his voice echoing against the reinforced glass. The CEO's expression twisted into a jagged mask of silent fury. <span class="ex-verb">Stepping away</span> from the mahogany monument to his vanity, Arthur walked toward the exit. The burden of the office fell away with every step, replaced by a terrifying, beautiful sense of freedom he hadn't felt in twelve years. He descended the stairs, ready to find <span class="ex-lit" data-tooltip="Symbolism">a new path</span> in the sunlight below.</p>` }
+                ]
             },
             junior: {
-                target: 300,
+                target: 320,
                 icon: 'fa-star',
+                strategy: 'Junior Strategy: 1-1-1-1',
                 labels: { starts: 'Boring Starts', filter: 'Tell Words', passive: 'Weak Verbs', adj: 'Describing' },
-                tips: [
-                    'Don\'t start with "The" or "He." Use <strong>Verbs</strong>.',
-                    'Instead of "He saw a cat," write "A cat dashed by."',
-                    'Swap "was/were" for action verbs like "sprinted."',
-                    'Swap "good/bad" for <strong>Power Words</strong> like "great."',
-                    'Use sight, sound, and smell to paint a picture.',
-                    'Usually, you don\'t need these! Use a better verb.'
-                ],
-                exemplar: `
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Junior Exemplar</h2>
-                        <span class="text-[10px] text-blue-400 bg-blue-900/30 px-2 py-1 rounded">322 Words</span>
-                    </div>
-                    <div id="exemplar-0" class="exemplar-part text-[0.8rem]">
-                        <span class="feature-tag bg-emerald-900 text-emerald-200">The Power Hook</span>
-                        <p class="mt-3 leading-relaxed text-emerald-300 font-bold italic">
-                            The small brass key felt heavy in Leo’s pocket, <span class="ex-lit" data-tooltip="Simile">like it was pulling him toward the forbidden attic</span>.
-                        </p>
-                    </div>
-                    <div id="exemplar-1" class="exemplar-part text-[0.8rem]">
-                        <span class="feature-tag bg-blue-900 text-blue-200">P1: The Start</span>
-                        <p class="mt-3 leading-relaxed text-slate-300">
-                            <span class="ex-verb" data-tooltip="Double Hand Start">With the heavy key in one hand and the old metal torch in the other</span>, Leo <span class="ex-verb">stood</span> before the tiny attic door. Grandmother’s house was ancient, filled with dusty secrets and <span class="ex-lit" data-tooltip="Imagery (Smell)">the sharp smell of mothballs</span>. For three whole years, Leo had wondered what was hidden behind this locked door, fueled by his grandfather’s stories of lost maps. He remembered his cousin telling him the room was haunted, but Leo didn't believe in ghosts. He only believed in adventure. The wood of the door was <span class="ex-lit" data-tooltip="Alliteration">rough and rigid and rusted</span>, waiting for someone brave enough to enter. 
-                        </p>
-                    </div>
-                    <div id="exemplar-2" class="exemplar-part text-[0.8rem]">
-                        <span class="feature-tag bg-blue-900 text-blue-200">P2: Tension</span>
-                        <p class="mt-3 leading-relaxed text-slate-300">
-                            <span class="ex-verb" data-tooltip="Injected Verb Start">Climbing the creaky stairs, feeling the cold air brush against his cheeks</span>, Leo <span class="ex-verb">pushed</span> the door open. The room was dark <span class="ex-lit" data-tooltip="Polysyndeton">and crowded and filled with spiderwebs</span> that hung from the ceiling <span class="ex-lit" data-tooltip="Simile">like sticky grey curtains</span>. Behind a stack of cardboard boxes, a wooden chest waited for him. Leo remembered the time he tried to find it before, only to be stopped by the bell for dinner. Now, his heart was a <span class="ex-lit" data-tooltip="Imagery (Sound)">drum beating against his ribs</span> as the torch light danced across the floor.
-                        </p>
-                    </div>
-                    <div id="exemplar-3" class="exemplar-part text-[0.8rem]">
-                        <span class="feature-tag bg-blue-900 text-blue-200">P3: The Peak</span>
-                        <p class="mt-3 leading-relaxed text-slate-300">
-                            <span class="ex-verb" data-tooltip="TNT Start">Leo froze. He watched. He listened.</span> <span class="ex-lit" data-tooltip="Onomatopoeia">Squeak!</span> A floorboard groaned under his feet. He swallowed hard, staring at the golden lock of the chest. <span class="ex-lit" data-tooltip="Asyndeton">Cold. Shiny. Mysterious.</span> Leo reached out, sliding the key into the slot. He remembered how his father always said to be patient with old locks. He wiggled the key, praying it wouldn't snap in the frozen metal. 
-                        </p>
-                    </div>
-                    <div id="exemplar-4" class="exemplar-part text-[0.8rem]">
-                        <span class="feature-tag bg-blue-900 text-blue-200">P4: Resolution</span>
-                        <p class="mt-3 leading-relaxed text-slate-300">
-                            <span class="ex-verb" data-tooltip="Double Issue Start">Leo, battling the heavy lid of the trunk, pulled</span> it open with a loud, echoing bang. He looked inside, <span class="ex-lit" data-tooltip="Personification">his excitement finally winning over his fear</span>. Inside lay a tattered map and a small silver compass that once belonged to his grandfather. The mystery was finally solved. He grabbed the treasure and marched back down the stairs, leaving the dusty attic behind. The sunlight in the hallway felt warmer than ever before, because he finally had a map for his own journey.
-                        </p>
-                    </div>
-                `
+                tips: ['Check <strong>every paragraph</strong> for varied starts.', 'Instead of "He saw a cat," write "A cat dashed by."', 'Swap "was/were" for action verbs like "sprinted."', 'Swap "good/bad" for <strong>Power Words</strong> like "great."', 'Use sight, sound, and smell to paint a picture.', 'Usually, you don\'t need these! Use a better verb.'],
+                exemplars: [
+                    { tag: 'The Power Hook', id: 'pHook', label: 'Grab the Reader Hook', placeholder: 'Start with a feeling or a cool object...', content: `<p class="font-bold italic text-emerald-300">The small brass key felt heavy in Leo’s pocket, <span class="ex-lit" data-tooltip="Simile">like it was pulling him toward the forbidden attic</span>.</p>` },
+                    { tag: 'P1: The Start', id: 'p1', label: 'Scene + History (Double Hand Start)', content: `<p><span class="ex-verb" data-tooltip="Double Hand Start">With the heavy key in one hand and the old metal torch in the other</span>, Leo <span class="ex-verb">stood</span> before the tiny attic door. Grandmother’s house was ancient, filled with dusty secrets and <span class="ex-lit" data-tooltip="Imagery">the sharp smell of mothballs</span>. For three whole years, Leo had wondered what was hidden behind this locked door, fueled by his grandfather’s stories of lost maps. He remembered his cousin telling him the room was haunted, but Leo didn't believe in ghosts. He only believed in adventure. The wood of the door was <span class="ex-lit" data-tooltip="Alliteration">rough and rigid and rusted</span>, waiting for someone brave enough to enter.</p>` },
+                    { tag: 'P2: Tension', id: 'p2', label: 'Problem + Memory (Injected Verb Start)', content: `<p><span class="ex-verb" data-tooltip="Injected Verb Start">Climbing the creaky stairs, feeling the cold air brush against his cheeks</span>, Leo <span class="ex-verb">pushed</span> the door open. The room was dark <span class="ex-lit" data-tooltip="Polysyndeton">and crowded and filled with spiderwebs</span> that hung from the ceiling <span class="ex-lit" data-tooltip="Simile">like sticky grey curtains</span>. Behind a stack of cardboard boxes, a wooden chest waited for him. Leo remembered the time he tried to find it before, only to be stopped by the bell for dinner. Now, his heart was a <span class="ex-lit" data-tooltip="Imagery">drum beating against his ribs</span> as the torch light danced across the floor.</p>` },
+                    { tag: 'P3: The Peak', id: 'p3', label: 'The Biggest Moment (TNT Start)', content: `<p><span class="ex-verb" data-tooltip="TNT Start">Leo froze. He watched. He listened.</span> <span class="ex-lit" data-tooltip="Onomatopoeia">Squeak!</span> A floorboard groaned under his feet. He swallowed hard, staring at the golden lock of the chest. <span class="ex-lit" data-tooltip="Asyndeton">Cold. Shiny. Mysterious.</span> Leo reached out, sliding the key into the slot. He remembered how his father always said to be patient with old locks. He wiggled the key, praying it wouldn't snap in the frozen metal.</p>` },
+                    { tag: 'P4: The Fix', id: 'p4', label: 'How it ends (Double Issue Start)', content: `<p><span class="ex-verb" data-tooltip="Double Issue Start">Leo, battling the heavy lid of the trunk, pulled</span> it open with a loud, echoing bang. He looked inside, <span class="ex-lit" data-tooltip="Personification">his excitement finally winning over his fear</span>. Inside lay a tattered map and a small silver compass that once belonged to his grandfather. The mystery was finally solved. He grabbed the treasure and marched back down the stairs, leaving the dusty attic behind. The sunlight in the hallway felt warmer than ever before, because he finally had a map for his own journey.</p>` }
+                ]
             }
         };
 
@@ -408,83 +350,103 @@
             currentMode = mode;
             const data = modes[mode];
             if (!data) return;
+
+            const safeSet = (id, prop, val) => { const el = document.getElementById(id); if (el) el[prop] = val; };
+            const safeToggle = (id, cls, state) => { const el = document.getElementById(id); if (el) el.classList.toggle(cls, state); };
+
+            safeToggle('juniorModeBtn', 'active', mode === 'junior');
+            safeToggle('seniorModeBtn', 'active', mode === 'senior');
             
-            // UI Switch
-            const jBtn = document.getElementById('juniorModeBtn');
-            const sBtn = document.getElementById('seniorModeBtn');
             const hIcon = document.getElementById('headerIcon');
-            
-            if (jBtn) jBtn.classList.toggle('active', mode === 'junior');
-            if (sBtn) sBtn.classList.toggle('active', mode === 'senior');
             if (hIcon) hIcon.className = `fas ${data.icon} text-white text-sm`;
-            
-            // Labels Switch
-            const sLabel = document.getElementById('strategyLabel');
-            const tDisp = document.getElementById('targetDisplay');
-            
-            if (sLabel) sLabel.innerText = `${mode.charAt(0).toUpperCase() + mode.slice(1)} Strategy: 1-1-1-1`;
-            if (tDisp) {
-                tDisp.innerText = data.target;
-                targetWords = data.target;
+
+            safeSet('strategyLabel', 'innerText', data.strategy);
+            safeSet('targetDisplay', 'innerText', data.target);
+            targetWords = data.target;
+
+            safeSet('label-starts', 'innerText', data.labels.starts);
+            safeSet('label-filter', 'innerText', data.labels.filter);
+            safeSet('label-passive', 'innerText', data.labels.passive);
+            safeSet('label-adj', 'innerText', data.labels.adj);
+
+            const zoneContainer = document.getElementById('sprintZones');
+            if (zoneContainer) {
+                zoneContainer.innerHTML = data.exemplars.map((ex, i) => `
+                    <div class="sprint-row" id="row-${ex.id}">
+                        <div class="exemplar-zone">
+                            <span class="feature-tag bg-blue-900/50 text-blue-300 border border-blue-500/30">${ex.tag}</span>
+                            <div class="mt-2 text-slate-300">${ex.content}</div>
+                        </div>
+                        <div class="input-zone">
+                            <label class="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">${ex.label}</label>
+                            <textarea id="${ex.id}" 
+                                      onfocus="setActiveRow('${ex.id}')" 
+                                      oninput="updateCounts()" 
+                                      placeholder="${ex.placeholder || 'Type your paragraph here...'}" 
+                                      rows="${i === 0 ? 2 : 6}"></textarea>
+                        </div>
+                    </div>
+                `).join('');
             }
-            
-            // Stat Labels - Added null checks to fix the bug reported
-            const lStarts = document.getElementById('label-starts');
-            const lFilter = document.getElementById('label-filter');
-            const lPassive = document.getElementById('label-passive');
-            const lAdj = document.getElementById('label-adj');
-            
-            if (lStarts) lStarts.innerText = data.labels.starts;
-            if (lFilter) lFilter.innerText = data.labels.filter;
-            if (lPassive) lPassive.innerText = data.labels.passive;
-            if (lAdj) lAdj.innerText = data.labels.adj;
-            
-            // Exemplar Refresh
-            const exCol = document.getElementById('exemplarColumn');
-            if (exCol) exCol.innerHTML = data.exemplar;
-            
-            // Tips Refresh
+
             const tGrid = document.getElementById('tipsGrid');
             if (tGrid) {
                 tGrid.innerHTML = data.tips.map((tip, i) => {
                     const colors = ['blue', 'yellow', 'red', 'emerald', 'purple', 'pink'];
-                    const targets = ['<50%', '0', '<10', '0', '~12%', '<5'];
+                    const targets = ['<55% (per para)', '0', '<10', '0', '~12%', '<5'];
                     return `<div class="text-[9px] text-slate-400 leading-tight">${tip} <span class="text-${colors[i]}-400 font-bold block mt-1">Target: ${targets[i]}</span></div>`;
                 }).join('');
             }
-
             updateCounts();
         }
 
-        function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
-        function saveSettings() { 
-            targetWords = parseInt(document.getElementById('targetInput').value); 
-            timeLeft = parseInt(document.getElementById('timeInput').value) * 60; 
-            document.getElementById('targetDisplay').innerText = targetWords; 
-            updateTimerDisplay(); 
-            toggleSettings(); 
+        function setActiveRow(id) {
+            document.querySelectorAll('.sprint-row').forEach(r => r.classList.remove('active'));
+            const row = document.getElementById(`row-${id}`);
+            if (row) row.classList.add('active');
+        }
+
+        function generateTitle() {
+            const display = document.getElementById('generatedTitleDisplay');
+            if (display) display.innerText = `"${storyTitles[Math.floor(Math.random() * storyTitles.length)]}"`;
+        }
+
+        function toggleSettings() { 
+            const el = document.getElementById('settingsModal');
+            if (el) el.classList.toggle('hidden'); 
+        }
+
+        function saveSettings() {
+            const tInput = document.getElementById('targetInput');
+            const timeIn = document.getElementById('timeInput');
+            if (tInput) targetWords = parseInt(tInput.value);
+            if (timeIn) timeLeft = parseInt(timeIn.value) * 60;
+            const tDisp = document.getElementById('targetDisplay');
+            if (tDisp) tDisp.innerText = targetWords;
+            updateTimerDisplay();
+            toggleSettings();
         }
 
         function startSprint() {
             if (isSprinting) return;
             isSprinting = true;
-            document.getElementById('startBtn').classList.add('hidden');
-            document.getElementById('analysisBtn').classList.remove('hidden');
-            timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) clearInterval(timerInterval); }, 1000);
+            const sBtn = document.getElementById('startBtn');
+            const aBtn = document.getElementById('analysisBtn');
+            if (sBtn) sBtn.classList.add('hidden');
+            if (aBtn) aBtn.classList.remove('hidden');
+            timerInterval = setInterval(() => { 
+                timeLeft--; 
+                updateTimerDisplay(); 
+                if (timeLeft <= 0) clearInterval(timerInterval); 
+            }, 1000);
         }
 
-        function updateTimerDisplay() { 
-            const timerEl = document.getElementById('timerDisplay');
-            if (!timerEl) return;
-            const m = Math.floor(timeLeft / 60); 
-            const s = timeLeft % 60; 
-            timerEl.innerText = `${m}:${s < 10 ? '0' : ''}${s}`; 
-        }
-
-        function setActive(num) {
-            document.querySelectorAll('.exemplar-part').forEach(p => p.classList.remove('active'));
-            const ex = document.getElementById(`exemplar-${num}`);
-            if (ex) { ex.classList.add('active'); ex.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        function updateTimerDisplay() {
+            const el = document.getElementById('timerDisplay');
+            if (!el) return;
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            el.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
         function updateCounts() {
@@ -498,92 +460,147 @@
         }
 
         function toggleAnalysis() {
-            const isClosing = !document.getElementById('analysisArea').classList.contains('hidden');
-            document.getElementById('writingArea').classList.toggle('hidden', !isClosing);
-            document.getElementById('analysisArea').classList.toggle('hidden', isClosing);
+            const area = document.getElementById('analysisArea');
+            const main = document.getElementById('mainContent');
+            if (!area || !main) return;
+            const isClosing = !area.classList.contains('hidden');
+            main.classList.toggle('hidden', !isClosing);
+            area.classList.toggle('hidden', isClosing);
             if (!isClosing) runAnalysis();
         }
 
         let stats = { total: 0, sentences: 0, weakStarts: 0, passive: 0, basic: 0, adj: 0, adv: 0, filter: 0 };
+        let allParagraphsPassWeakStarts = true;
 
         function runAnalysis(fromAnalysisDiv = false) {
-            const paras = fromAnalysisDiv ? [document.getElementById('fullAnalysisText').innerText] : ['pHook','p1','p2','p3','p4'].map(id => document.getElementById(id).value);
+            const fTextContainer = document.getElementById('fullAnalysisText');
+            if (!fTextContainer) return;
+
+            const textToProcess = fromAnalysisDiv ? fTextContainer.innerText : ['pHook','p1','p2','p3','p4'].map(id => document.getElementById(id)?.value || "").join('\n\n');
+            
+            // Overhaul: robust line split to keep student layout
+            const lines = textToProcess.split(/\n/);
             let html = '';
             stats = { total: 0, sentences: 0, weakStarts: 0, passive: 0, basic: 0, adj: 0, adv: 0, filter: 0 };
+            allParagraphsPassWeakStarts = true;
 
-            paras.forEach(p => {
-                if (!p || !p.trim()) return;
-                html += `<div class="mb-4">`;
-                const sentences = p.match(/[^.!?]+[.!?]*/g) || [p];
-                sentences.forEach(s => {
+            lines.forEach((line, lineIdx) => {
+                if (!line.trim()) {
+                    html += '<div class="h-4"></div>';
+                    return;
+                }
+
+                let lineSentences = 0;
+                let lineWeakStarts = 0;
+
+                // Split by punctuation for sentence starts
+                const sentenceMatches = line.match(/[^.!?]+[.!?]*/g) || [line];
+                
+                sentenceMatches.forEach(s => {
                     stats.sentences++;
-                    const tokens = s.trim().split(/(\s+)/);
-                    let isFirst = true;
+                    lineSentences++;
+                    const tokens = s.split(/(\s+)/);
+                    let firstWordFound = false;
+
                     tokens.forEach(t => {
                         if (!t.trim()) { html += t; return; }
+                        
                         stats.total++;
-                        let w = t.replace(/[.,!?;:()"]/g, "").toLowerCase();
+                        let word = t.replace(/[.,!?;:()"]/g, "").toLowerCase();
                         let cls = [];
-                        if (isFirst) { if (weakStarts.has(w)) { cls.push('hl-first-word'); stats.weakStarts++; } isFirst = false; }
-                        if (filterWords.has(w)) { cls.push('hl-filter'); stats.filter++; }
-                        if (passiveVerbs.has(w)) { cls.push('hl-passive'); stats.passive++; }
-                        if (basicWords.has(w)) { cls.push('hl-basic'); stats.basic++; }
-                        if (w.endsWith('ly') && !['family', 'jelly', 'lily', 'ugly', 'early', 'only'].includes(w)) { cls.push('hl-adverb'); stats.adv++; }
-                        html += `<span class="${cls.join(' ')}">${t}</span>`;
+
+                        if (!firstWordFound) {
+                            if (weakStarts.has(word)) { 
+                                cls.push('hl-first-word'); 
+                                stats.weakStarts++; 
+                                lineWeakStarts++; 
+                            }
+                            firstWordFound = true;
+                        }
+
+                        if (filterWords.has(word)) { cls.push('hl-filter'); stats.filter++; }
+                        if (passiveVerbs.has(word)) { cls.push('hl-passive'); stats.passive++; }
+                        if (basicWords.has(word)) { cls.push('hl-basic'); stats.basic++; }
+                        if (word.endsWith('ly') && !['family', 'jelly', 'lily', 'ugly', 'early', 'only', 'belly', 'holy'].includes(word)) { 
+                            cls.push('hl-adverb'); stats.adv++; 
+                        }
+                        if (adjectives.has(word)) { 
+                            cls.push('hl-adjective'); stats.adj++; 
+                        }
+
+                        if (cls.length > 0) {
+                            html += `<span class="${cls.join(' ')}">${t}</span>`;
+                        } else {
+                            html += t;
+                        }
                     });
                 });
-                html += `</div>`;
+
+                // Auditing the paragraph: target < 55%
+                if (lineSentences > 0) {
+                    const lineRate = lineWeakStarts / lineSentences;
+                    if (lineRate >= 0.55) allParagraphsPassWeakStarts = false;
+                }
+
+                if (lineIdx < lines.length - 1) html += '<br>';
             });
 
-            document.getElementById('fullAnalysisText').innerHTML = html || "Write something first!";
-            document.getElementById('startStat').innerText = `${Math.round((stats.weakStarts / (stats.sentences || 1)) * 100)}%`;
-            document.getElementById('filterStat').innerText = stats.filter;
-            document.getElementById('passiveStat').innerText = stats.passive;
-            document.getElementById('basicStat').innerText = stats.basic;
-            document.getElementById('adjStat').innerText = `12%`; 
-            document.getElementById('advStat').innerText = stats.adv;
+            fTextContainer.innerHTML = html || "Start writing to see the breakdown!";
+            
+            const safeSetVal = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+            safeSetVal('startStat', `${Math.round((stats.weakStarts / (stats.sentences || 1)) * 100)}%`);
+            safeSetVal('filterStat', stats.filter);
+            safeSetVal('passiveStat', stats.passive);
+            safeSetVal('basicStat', stats.basic);
+            safeSetVal('adjStat', `${Math.round((stats.adj / (stats.total || 1)) * 100)}%`); 
+            safeSetVal('advStat', stats.adv);
             applyTargetColors();
         }
 
         function applyTargetColors() {
             const startPct = (stats.weakStarts / (stats.sentences || 1)) * 100;
+            const adjPct = (stats.adj / (stats.total || 1)) * 100;
+            
             const check = (id, cond) => {
                 const el = document.getElementById(id);
                 if (!el) return;
+                const box = el.parentElement;
                 el.innerHTML += cond ? ' <i class="fas fa-check-circle text-[10px]"></i>' : ' <i class="fas fa-exclamation-triangle text-[10px]"></i>';
-                el.parentElement.style.borderColor = cond ? '#10b981' : '#f87171';
+                box.style.borderColor = cond ? '#10b981' : '#f87171';
             };
+
             ['startStat', 'filterStat', 'passiveStat', 'basicStat', 'adjStat', 'advStat'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) {
-                    const val = el.innerText.split(' ')[0];
-                    el.innerText = val;
-                }
+                if (el) el.innerText = el.innerText.split(' ')[0];
             });
-            check('startStat', startPct < 50);
+
+            // Target check per paragraph for Weak Starts
+            check('startStat', startPct < 55 && allParagraphsPassWeakStarts);
             check('filterStat', stats.filter === 0);
             check('passiveStat', stats.passive < 10);
             check('basicStat', stats.basic === 0);
+            check('adjStat', Math.abs(adjPct - 12) < 6);
             check('advStat', stats.adv < 5);
         }
 
         function copyToClipboard() {
-            const text = document.getElementById('fullAnalysisText').innerText;
+            const fText = document.getElementById('fullAnalysisText');
+            if (!fText) return;
             const el = document.createElement('textarea');
-            el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-            const notify = document.getElementById('copyNotify'); notify.style.display = 'block'; setTimeout(() => notify.style.display = 'none', 2000);
+            el.value = fText.innerText; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+            const notify = document.getElementById('copyNotify'); if (notify) { notify.style.display = 'block'; setTimeout(() => notify.style.display = 'none', 2000); }
         }
 
         function emailMrC() {
-            const workText = document.getElementById('fullAnalysisText').innerText;
-            const summary = `STORY SPRINT SCORECARD (${currentMode.toUpperCase()}):\nWords: ${stats.total}\nWeak Start %: ${Math.round((stats.weakStarts/stats.sentences)*100)}%\n\n`;
+            const workText = document.getElementById('fullAnalysisText')?.innerText || "";
+            const summary = `STORY SPRINT SCORECARD (${currentMode.toUpperCase()}):\nTotal Words: ${stats.total}\nWeak Starts: ${Math.round((stats.weakStarts/stats.sentences)*100)}% (Pass: ${allParagraphsPassWeakStarts})\nBasic Words: ${stats.basic}\n\n`;
             window.location.href = `mailto:ncomi3@eq.edu.au?subject=Story Sprint Submission&body=${encodeURIComponent(summary + "STORY:\n" + workText)}`;
         }
 
-        // Init - wrapped in DOMContentLoaded
         document.addEventListener('DOMContentLoaded', () => {
             switchMode('senior');
             updateTimerDisplay();
+            generateTitle();
         });
     </script>
 </body>
